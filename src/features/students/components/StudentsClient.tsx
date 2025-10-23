@@ -6,7 +6,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {CollectorDTO, StudentDTO} from "@/src/types/student";
-import {fetchStudents} from "@/src/api/student";
+import {getStudents} from "@/src/features/students/api";
 
 const { Title, Text } = Typography;
 
@@ -19,7 +19,7 @@ export default function StudentsClient() {
     const load = async () => {
         try {
             setLoading(true);
-            const data = await fetchStudents({
+            const data = await getStudents({
                 name: name || undefined,
                 groupId: groupId,
             });

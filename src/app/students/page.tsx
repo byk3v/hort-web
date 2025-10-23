@@ -1,4 +1,4 @@
-import StudentsClient from "@/src/components/students/StudentsClient";
+import StudentsClient from "@/src/features/students/components/StudentsClient";
 
 export default function StudentsPage() {
     return (<StudentsClient />);
