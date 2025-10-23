@@ -1,4 +1,3 @@
-/* Reset de AntD + tus estilos globales */
 @import 'antd/dist/reset.css';
 
 html, body, #__next { height: 100%; }

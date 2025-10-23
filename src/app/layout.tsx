@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { ConfigProvider } from 'antd';
 import '../styles/globals.css';
-import AppShell from "@/src/components/layout/AppShell";
+import AppShell from "@/src/features/layout/AppShell";
 
 export const metadata: Metadata = { title: 'HortApp', description: 'Panel Hort' };
 
