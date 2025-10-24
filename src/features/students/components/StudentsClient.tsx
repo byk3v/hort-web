@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, Input, InputNumber, message, Space, Table, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {CollectorDTO, StudentDTO} from "@/src/types/student";
 import {getStudents} from "@/src/features/students/api";
+import AddStudentModal from "./AddStudentModal";
 
 const { Title, Text } = Typography;
 
@@ -15,6 +16,7 @@ export default function StudentsClient() {
     const [rows, setRows] = useState<StudentDTO[]>([]);
     const [name, setName] = useState<string>('');
     const [groupId, setGroupId] = useState<number | undefined>(undefined);
+    const [openAdd, setOpenAdd] = useState(false);
 
     const load = async () => {
         try {
@@ -147,6 +149,9 @@ export default function StudentsClient() {
                 <Tooltip title="Filter & Tabelle zurücksetzen">
                     <Button icon={<ReloadOutlined />} onClick={onReset} />
                 </Tooltip>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpenAdd(true)}>
+                    Add Student
+                </Button>
             </Space>
 
             {/* Tabla principal */}
@@ -162,6 +167,11 @@ export default function StudentsClient() {
                         (record.collectors?.length || 0) > 0,
                 }}
                 pagination={{ pageSize: 10, showSizeChanger: true }}
+            />
+            <AddStudentModal
+                open={openAdd}
+                onClose={() => setOpenAdd(false)}
+                onCreated={load} // recarga la tabla
             />
         </Space>
     );

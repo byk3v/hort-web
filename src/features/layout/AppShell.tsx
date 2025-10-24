@@ -4,16 +4,19 @@ import {Layout, Menu, theme} from 'antd';
 import {
     TeamOutlined,
     UserOutlined,
-    ClockCircleOutlined, HomeOutlined,
+    ClockCircleOutlined, HomeOutlined, MenuUnfoldOutlined, MenuFoldOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
+import {useState} from "react";
+import styles from './AppShell.module.css';
 
 const {Header, Sider, Content} = Layout;
 
 export default function AppShell({children}: { children: React.ReactNode }) {
     const {token: {colorBgContainer}} = theme.useToken();
     const pathname = usePathname();
+    const [collapsed, setCollapsed] = useState(false);
 
     const selectedKey =
         pathname.startsWith('/students') ? 'students' :
@@ -23,14 +26,22 @@ export default function AppShell({children}: { children: React.ReactNode }) {
 
     return (
         <Layout style={{minHeight: '100vh'}}>
-            <Sider collapsible>
-                <div style={{height: 48, margin: 16, color: 'white', fontWeight: 600}}>
-                    HortApp
+            <Sider
+                width={220}
+                collapsible
+                collapsed={collapsed}
+                trigger={null}
+            >
+                <div className={styles.siderHeader}>
+                  {!collapsed && <span className={styles.logo}>HortApp</span>}
+                  <span className={styles.toggleButton} onClick={() => setCollapsed(!collapsed)}>
+                    {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                  </span>
                 </div>
                 <Menu theme="dark" mode="inline" selectedKeys={[selectedKey]}
 
                       items={[
-                          {key: 'home', icon: <HomeOutlined/>, label: <Link href="/public">Start</Link>},
+                          {key: 'home', icon: <HomeOutlined/>, label: <Link href="/">Start</Link>},
                           {key: 'groups', icon: <TeamOutlined/>, label: <Link href="/groups">Gruppen</Link>},
                           {key: 'students', icon: <TeamOutlined/>, label: <Link href="/students">Schülern</Link>},
                           {key: 'collectors', icon: <UserOutlined/>, label: <Link href="/collectors">Abholer</Link>},
