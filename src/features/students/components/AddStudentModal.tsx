@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Modal, Form, Input, Button, Space, Checkbox, DatePicker, Divider, message } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {useState} from "react";
+import {Modal, Form, Input, Button, Space, Checkbox, DatePicker, Divider, message, Row, Col} from "antd";
+import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
-import { createStudentOnboarding } from "@/src/features/students/api";
-
-const { RangePicker } = DatePicker;
+import {createStudentOnboarding} from "@/src/features/students/api";
 
 type Props = {
     open: boolean;
@@ -14,7 +12,7 @@ type Props = {
     onCreated?: () => void;
 };
 
-export default function AddStudentModal({ open, onClose, onCreated }: Props) {
+export default function AddStudentModal({open, onClose, onCreated}: Props) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -41,7 +39,7 @@ export default function AddStudentModal({ open, onClose, onCreated }: Props) {
                     address: values.student.address,
                     phone: values.student.phone || undefined,
                 },
-                groupId: 1, // hardcoded as requested
+                groupId: 1, // hardcoded until definition
                 collectors,
             };
 
@@ -61,14 +59,14 @@ export default function AddStudentModal({ open, onClose, onCreated }: Props) {
 
     return (
         <Modal
-            title="Add Student"
+            title="Schüler Onboarding"
             open={open}
             onCancel={() => {
                 form.resetFields();
                 onClose();
             }}
             onOk={handleSubmit}
-            okText="Save"
+            okText="Speichern"
             confirmLoading={loading}
             width={750}
             destroyOnClose
@@ -90,35 +88,46 @@ export default function AddStudentModal({ open, onClose, onCreated }: Props) {
                 }}
             >
                 {/* ---------------- STUDENT ---------------- */}
-                <Divider orientation="left">Student</Divider>
-
-                <Form.Item
-                    name={["student", "firstName"]}
-                    label="First Name"
-                    rules={[{ required: true, message: "Required" }]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name={["student", "lastName"]}
-                    label="Last Name"
-                    rules={[{ required: true, message: "Required" }]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name={["student", "address"]}
-                    label="Address"
-                    rules={[{ required: true, message: "Required" }]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item name={["student", "phone"]} label="Phone (optional)">
-                    <Input />
-                </Form.Item>
+                <Divider orientation="left">Schüler</Divider>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name={["student", "firstName"]}
+                            label="Vorname"
+                            rules={[{required: true, message: "Required"}]}
+                        >
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name={["student", "lastName"]}
+                            label="Nachname"
+                            rules={[{required: true, message: "Required"}]}
+                        >
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={16}>
+                        <Form.Item
+                            name={["student", "address"]}
+                            label="Address"
+                            rules={[{required: true, message: "Required"}]}
+                        >
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name={["student", "phone"]} label="Phone (optional)">
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
                 {/* ---------------- COLLECTORS ---------------- */}
-                <Divider orientation="left">Abholberechtigte (Collectors)</Divider>
+                <Divider orientation="left">Abholberechtigten</Divider>
 
                 <Form.List
                     name="collectors"
@@ -137,72 +146,107 @@ export default function AddStudentModal({ open, onClose, onCreated }: Props) {
                     {(fields, { add, remove }) => (
                         <>
                             {fields.map(({ key, name, ...restField }) => (
-                                <div key={key} style={{ borderBottom: "1px solid #f0f0f0", marginBottom: 16, paddingBottom: 8 }}>
-                                    <Space align="baseline" wrap style={{ width: "100%" }}>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, "firstName"]}
-                                            label="First Name"
-                                            rules={[{ required: true }]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, "lastName"]}
-                                            label="Last Name"
-                                            rules={[{ required: true }]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, "address"]}
-                                            label="Address"
-                                            rules={[{ required: true }]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, "phone"]}
-                                            label="Phone"
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, "validRange"]}
-                                            label="Valid From - Until"
-                                            rules={[{ required: true }]}
-                                        >
-                                            <RangePicker showTime />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, "mainCollector"]}
-                                            valuePropName="checked"
-                                        >
-                                            <Checkbox>Main Collector</Checkbox>
-                                        </Form.Item>
+                                <div
+                                    key={key}
+                                    style={{
+                                        borderBottom: "1px solid #f0f0f0",
+                                        marginBottom: 16,
+                                        paddingBottom: 8,
+                                    }}
+                                >
+                                    {/* Fila 1: firstName + lastName + remove button */}
+                                    <Row gutter={16} align="top">
+                                        <Col span={11}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, "firstName"]}
+                                                label="Vorname"
+                                                rules={[{ required: true, message: "Required" }]}
+                                            >
+                                                <Input />
+                                            </Form.Item>
+                                        </Col>
 
-                                        {fields.length > 1 && (
-                                            <MinusCircleOutlined
-                                                onClick={() => remove(name)}
-                                                style={{ color: "#ff4d4f", marginTop: 30 }}
-                                            />
-                                        )}
-                                    </Space>
+                                        <Col span={11}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, "lastName"]}
+                                                label="Nachname"
+                                                rules={[{ required: true, message: "Required" }]}
+                                            >
+                                                <Input />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col span={2} style={{ display: "flex", alignItems: "center" }}>
+                                            {fields.length > 1 && (
+                                                <MinusCircleOutlined
+                                                    onClick={() => remove(name)}
+                                                    style={{ color: "#ff4d4f", fontSize: 16, cursor: "pointer" }}
+                                                />
+                                            )}
+                                        </Col>
+                                    </Row>
+
+                                    {/* Fila 2: phone + address + mainCollector */}
+                                    <Row gutter={16} align="middle">
+                                        <Col span={6}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, "phone"]}
+                                                label="Phone"
+                                                rules={[{ required: true, message: "Required" }]}
+                                            >
+                                                <Input />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col span={12}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, "address"]}
+                                                label="Address"
+                                                rules={[{ required: true, message: "Required" }]}
+                                            >
+                                                <Input />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col
+                                            span={6}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "end",
+                                                paddingTop: 4,
+                                            }}
+                                        >
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, "mainCollector"]}
+                                                valuePropName="checked"
+                                                style={{ marginBottom: 0 }}
+                                            >
+                                                <Checkbox>Haupt Abholer</Checkbox>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
                                 </div>
                             ))}
+
                             <Form.Item>
-                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                    Add Another Collector
+                                <Button
+                                    type="dashed"
+                                    onClick={() => add()}
+                                    block
+                                    icon={<PlusOutlined />}
+                                >
+                                    Abholer hinzufügen
                                 </Button>
                             </Form.Item>
                         </>
                     )}
                 </Form.List>
+
             </Form>
         </Modal>
     );

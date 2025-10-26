@@ -3,8 +3,8 @@ export interface CollectorForOnboarding {
     lastName: string;
     address: string;
     phone?: string;
-    validFrom: string;
-    validUntil: string;
+    validFrom: string | null;
+    validUntil: string | null;
     type: "COLLECTOR";
     permissionType: "PERMANENT";
     mainCollector: boolean;
