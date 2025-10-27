@@ -1,7 +1,7 @@
 "use client";
 
 import {useState} from "react";
-import {Modal, Form, Input, Button, Space, Checkbox, DatePicker, Divider, message, Row, Col} from "antd";
+import {Modal, Form, Input, Button, Checkbox, Divider, message, Row, Col} from "antd";
 import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import {createStudentOnboarding} from "@/src/features/students/api";

@@ -1,4 +1,5 @@
 export interface CollectorDTO {
+    id: number;
     firstName: string;
     lastName: string;
     address?: string;

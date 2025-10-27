@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, InputNumber, message, Space, Table, Tag, Tooltip, Typography } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import {useEffect, useMemo, useState} from 'react';
+import {Button, Input, InputNumber, message, Space, Table, Tag, Tooltip, Typography} from 'antd';
+import type {ColumnsType} from 'antd/es/table';
+import {PlusOutlined, ReloadOutlined, SearchOutlined} from '@ant-design/icons';
 import {CollectorDTO, StudentDTO} from "@/src/types/student";
 import {getStudents} from "@/src/features/students/api";
 import AddStudentModal from "./AddStudentModal";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
 
 export default function StudentsClient() {
     const [loading, setLoading] = useState(false);
@@ -80,18 +79,6 @@ export default function StudentsClient() {
                     v ? <Tag color="green">Ja</Tag> : <Tag>Nein</Tag>,
             },
             {
-                title: 'Erlaubt bis',
-                dataIndex: 'allowedTimeToLeave' as any,
-                key: 'allowedTimeToLeave',
-                width: 180,
-                render: (v?: string) =>
-                    v ? (
-                        <Text>{dayjs(v).format('YYYY-MM-DD HH:mm')}</Text>
-                    ) : (
-                        <Text type="secondary">—</Text>
-                    ),
-            },
-            {
                 title: 'Berechtigte Abholer',
                 key: 'collectorsCount',
                 width: 180,
@@ -103,24 +90,24 @@ export default function StudentsClient() {
 
     const renderCollectorsTable = (collectors: CollectorDTO[]) => {
         const cCols: ColumnsType<CollectorDTO> = [
-            { title: 'Vorname', dataIndex: 'firstName', key: 'firstName', width: 160 },
-            { title: 'Nachname', dataIndex: 'lastName', key: 'lastName', width: 160 },
-            { title: 'Telefon', dataIndex: 'phone', key: 'phone', width: 160 },
-            { title: 'Adresse', dataIndex: 'address', key: 'address', ellipsis: true },
+            {title: 'Vorname', dataIndex: 'firstName', key: 'firstName', width: 160},
+            {title: 'Nachname', dataIndex: 'lastName', key: 'lastName', width: 160},
+            {title: 'Telefon', dataIndex: 'phone', key: 'phone', width: 160},
+            {title: 'Adresse', dataIndex: 'address', key: 'address', ellipsis: true},
         ];
         return (
             <Table<CollectorDTO>
                 size="small"
                 columns={cCols}
-                dataSource={(collectors || []).map((c, i) => ({ ...c, key: i }))}
+                dataSource={(collectors || []).map((c, i) => ({...c, key: i}))}
                 pagination={false}
             />
         );
     };
 
     return (
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <Title level={3} style={{ margin: 0 }}>
+        <Space direction="vertical" size="large" style={{width: '100%'}}>
+            <Title level={3} style={{margin: 0}}>
                 Schüler
             </Title>
 
@@ -132,8 +119,8 @@ export default function StudentsClient() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     onPressEnter={onSearch}
-                    style={{ width: 260 }}
-                    prefix={<SearchOutlined />}
+                    style={{width: 260}}
+                    prefix={<SearchOutlined/>}
                 />
                 <InputNumber
                     placeholder="groupId"
@@ -141,16 +128,16 @@ export default function StudentsClient() {
                     onChange={(v) =>
                         setGroupId(typeof v === 'number' ? v : undefined)
                     }
-                    style={{ width: 160 }}
+                    style={{width: 160}}
                 />
-                <Button type="primary" icon={<SearchOutlined />} onClick={onSearch}>
+                <Button type="primary" icon={<SearchOutlined/>} onClick={onSearch}>
                     Suchen
                 </Button>
                 <Tooltip title="Filter & Tabelle zurücksetzen">
-                    <Button icon={<ReloadOutlined />} onClick={onReset} />
+                    <Button icon={<ReloadOutlined/>} onClick={onReset}/>
                 </Tooltip>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpenAdd(true)}>
-                    Add Student
+                <Button type="primary" icon={<PlusOutlined/>} onClick={() => setOpenAdd(true)}>
+                    Schüler hinzufügen
                 </Button>
             </Space>
 
@@ -166,12 +153,12 @@ export default function StudentsClient() {
                     rowExpandable: (record) =>
                         (record.collectors?.length || 0) > 0,
                 }}
-                pagination={{ pageSize: 10, showSizeChanger: true }}
+                pagination={{pageSize: 10, showSizeChanger: true}}
             />
             <AddStudentModal
                 open={openAdd}
                 onClose={() => setOpenAdd(false)}
-                onCreated={load} // recarga la tabla
+                onCreated={load}
             />
         </Space>
     );

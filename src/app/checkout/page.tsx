@@ -1,5 +1,5 @@
-import AppShell from "@/src/features/layout/AppShell";
+import CheckoutClient from "@/src/features/checkout/components/CheckoutClient";
 
 export default function CheckoutPage() {
-    return <>Abmeldung 👋</>;
+    return (<CheckoutClient />);
 }
