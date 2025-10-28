@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Table, Input, Space, Tag, Typography, message, Button} from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type {ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
 import {CheckoutCollectorInfo, CheckoutStudentInfo} from "@/src/types/CheckoutSearchResponse";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/src/features/checkout/api";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
 
 export default function CheckoutClient() {
     const [query, setQuery] = useState("");
@@ -66,7 +66,7 @@ export default function CheckoutClient() {
             setRows(prev =>
                 prev.map(s =>
                     s.studentId === student.studentId
-                        ? { ...s, checkedOutToday: true }
+                        ? {...s, checkedOutToday: true}
                         : s
                 )
             );
@@ -88,7 +88,7 @@ export default function CheckoutClient() {
             setRows(prev =>
                 prev.map(s =>
                     s.studentId === student.studentId
-                        ? { ...s, checkedOutToday: true }
+                        ? {...s, checkedOutToday: true}
                         : s
                 )
             );
@@ -105,10 +105,13 @@ export default function CheckoutClient() {
             title: "Name",
             key: "name",
             render: (_, r) => (
+                <Space size={8} align="center">
                 <span>
           {r.firstName} {r.lastName}
+                    </span>
                     {r.checkedOutToday && <Tag color="red">Schon abgemeldet</Tag>}
-        </span>
+
+                </Space>
             ),
             sorter: (a, b) =>
                 (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName),
@@ -140,7 +143,7 @@ export default function CheckoutClient() {
                         ) : (
                             <Button
                                 size="small"
-                                icon={<UserOutlined />}
+                                icon={<UserOutlined/>}
                                 onClick={() => handleSelfCheckout(r)}
                             >
                                 Selbst gehen lassen
@@ -158,45 +161,55 @@ export default function CheckoutClient() {
                     return <Text type="secondary">—</Text>;
                 }
                 return (
-                    <Space direction="vertical" size={6} style={{ width: "100%" }}>
+                    <Space direction="vertical" size={6} style={{width: "100%"}}>
                         {r.allowedCollectors.map((c, i) => (
                             <div
                                 key={i}
                                 style={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
+                                    display: "grid",
+                                    gridTemplateColumns: "minmax(160px, 1fr) 140px auto",
                                     alignItems: "center",
-                                    gap: 8,
+                                    columnGap: 8,
+                                    rowGap: 4,
                                 }}
                             >
-                                <Text strong>
-                                    {c.firstName} {c.lastName}
-                                </Text>
-
-                                {c.mainCollector && <Tag color="blue">Haupt</Tag>}
-
-                                {c.allowedFromTime && (
-                                    <Tag color="green">ab {c.allowedFromTime}</Tag>
-                                )}
-
-                                {c.phone && (
-                                    <Text type="secondary" style={{ marginLeft: 4 }}>
-                                        {c.phone}
+                                <div style={{display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6}}>
+                                    <Text strong>
+                                        {c.firstName} {c.lastName}
                                     </Text>
-                                )}
 
-                                {r.checkedOutToday ? (
-                                    <Tag color="red">Schon gegangen</Tag>
-                                ) : (
-                                    <Button
-                                        size="small"
-                                        type="primary"
-                                        icon={<LogoutOutlined />}
-                                        onClick={() => handleCollectorCheckout(r, c)}
-                                    >
-                                        Abmelden
-                                    </Button>
-                                )}
+                                    {c.mainCollector && <Tag color="blue">Haupt</Tag>}
+
+                                    {c.allowedFromTime && (
+                                        <Tag color="green">ab {c.allowedFromTime}</Tag>
+                                    )}
+                                </div>
+                                <div style={{
+                                    color: "rgba(0,0,0,.45)", whiteSpace: "nowrap", overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    maxWidth: 140,
+                                }}>
+                                    {c.phone && (
+                                        <Text type="secondary" style={{marginLeft: 4}}>
+                                            {c.phone}
+                                        </Text>
+                                    )}
+                                </div>
+                                <div>
+                                    {r.checkedOutToday ? (
+                                        <Tag color="red">Schon abgemeldet</Tag>
+                                    ) : (
+                                        <Button
+                                            size="small"
+                                            shape="round"
+                                            type="primary"
+                                            icon={<LogoutOutlined/>}
+                                            onClick={() => handleCollectorCheckout(r, c)}
+                                        >
+                                            Abmelden
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </Space>
@@ -206,20 +219,20 @@ export default function CheckoutClient() {
     ], [handleCollectorCheckout, handleSelfCheckout]);
 
     return (
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            <Title level={3} style={{ margin: 0 }}>
+        <Space direction="vertical" size="large" style={{width: "100%"}}>
+            <Title level={3} style={{margin: 0}}>
                 Abmeldung
             </Title>
 
             {/* barra de búsqueda */}
-            <Space wrap style={{ width: "100%" }}>
+            <Space wrap style={{width: "100%"}}>
                 <Input
                     allowClear
                     autoFocus
                     placeholder="Suche nach Name oder Gruppe (z.B. 'so', 'mül', '3t')"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    style={{ width: 320 }}
+                    style={{width: 320}}
                 />
                 <Text type="secondary">
                     Tippe mind. 2 Zeichen. Suche läuft automatisch.
@@ -232,7 +245,7 @@ export default function CheckoutClient() {
                 loading={loading}
                 columns={columns}
                 dataSource={rows}
-                pagination={{ pageSize: 10, showSizeChanger: true }}
+                pagination={{pageSize: 10, showSizeChanger: true}}
             />
         </Space>
     );

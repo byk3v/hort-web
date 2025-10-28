@@ -21,6 +21,7 @@ export default function AppShell({children}: { children: React.ReactNode }) {
     const selectedKey =
         pathname.startsWith('/students') ? 'students' :
             pathname.startsWith('/collectors') ? 'collectors' :
+            pathname.startsWith('/permissions') ? 'permissions' :
                 pathname.startsWith('/groups') ? 'groups' :
                     pathname.startsWith('/checkout') ? 'checkout' : 'home';
 
@@ -45,7 +46,7 @@ export default function AppShell({children}: { children: React.ReactNode }) {
                           {key: 'groups', icon: <TeamOutlined/>, label: <Link href="/groups">Gruppen</Link>},
                           {key: 'students', icon: <TeamOutlined/>, label: <Link href="/students">Schülern</Link>},
                           {key: 'collectors', icon: <UserOutlined/>, label: <Link href="/collectors">Abholer</Link>},
-
+                          {key: 'permissions', icon: <UserOutlined/>, label: <Link href="/permissions">Vollmächte</Link>},
                           {
                               key: 'checkout',
                               icon: <ClockCircleOutlined/>,
