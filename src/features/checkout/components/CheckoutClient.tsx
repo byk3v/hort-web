@@ -3,7 +3,6 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Table, Input, Space, Tag, Typography, message, Button} from "antd";
 import type {ColumnsType} from "antd/es/table";
-import dayjs from "dayjs";
 import {CheckoutCollectorInfo, CheckoutStudentInfo} from "@/src/types/CheckoutSearchResponse";
 import {
     confirmCheckoutWithCollector,

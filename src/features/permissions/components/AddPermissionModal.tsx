@@ -2,21 +2,21 @@
 
 import {useCallback, useEffect, useRef, useState} from "react";
 import {
-    Modal,
-    Form,
-    Radio,
     Checkbox,
-    DatePicker,
-    TimePicker,
-    Input,
-    Row,
     Col,
-    Select,
+    DatePicker,
     Divider,
-    Button,
+    Form,
+    Input,
     message,
+    Modal,
+    Radio,
+    Row,
     Space,
-    Typography, Tag, Table,
+    Table,
+    Tag,
+    TimePicker,
+    Typography,
 } from "antd";
 import dayjs, {Dayjs} from "dayjs";
 import {createNewPermission} from "@/src/features/permissions/api";
@@ -24,12 +24,7 @@ import {CheckoutStudentInfo} from "@/src/types/CheckoutSearchResponse";
 import {searchStudentForCheckout} from "@/src/features/checkout/api";
 import {ColumnsType} from "antd/es/table";
 
-const { Text } = Typography;
-
-type StudentOption = {
-    value: number;
-    label: string;
-};
+const {Text} = Typography;
 
 type FormValues = {
     studentId?: number;
@@ -173,154 +168,154 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
 
 
         // Caso TAGES
-    //   - necesitamos tagesDate (obligatoria)
-    //   - necesitamos tagesTime (hora desde cuándo es válido)
-    //
-    // Caso DAUER
-    //   - dauerFrom y dauerUntil son opcionales
-    //
-    // allowedFromTime:
-    //   - TAGES + canLeaveAlone => tagesTime
-    //   - DAUER + canLeaveAlone => horarios semanales
-    //
-    // collector:
-    //   - obligatorio si canLeaveAlone === false
+        //   - necesitamos tagesDate (obligatoria)
+        //   - necesitamos tagesTime (hora desde cuándo es válido)
+        //
+        // Caso DAUER
+        //   - dauerFrom y dauerUntil son opcionales
+        //
+        // allowedFromTime:
+        //   - TAGES + canLeaveAlone => tagesTime
+        //   - DAUER + canLeaveAlone => horarios semanales
+        //
+        // collector:
+        //   - obligatorio si canLeaveAlone === false
 
-    // Armar fechas finales
-    let validFrom: string | undefined = undefined;
-    let validUntil: string | null | undefined = undefined;
-    let allowedFromTime: string | undefined = undefined;
-    let weeklyAllowedFrom:
-        | {
-        monday?: string;
-        tuesday?: string;
-        wednesday?: string;
-        thursday?: string;
-        friday?: string;
-    }
-        | undefined = undefined;
-    let collector:
-        | {
-        firstName: string;
-        lastName: string;
-        address: string;
-        phone?: string;
-    }
-        | undefined = undefined;
-
-    if (kind === "TAGES") {
-        // Fecha obligatoria
-        if (!values.tagesDate) {
-            message.error("Bitte ein Datum auswählen (Tagesvollmacht).");
-            return;
+        // Armar fechas finales
+        let validFrom: string | undefined = undefined;
+        let validUntil: string | null | undefined = undefined;
+        let allowedFromTime: string | undefined = undefined;
+        let weeklyAllowedFrom:
+            | {
+            monday?: string;
+            tuesday?: string;
+            wednesday?: string;
+            thursday?: string;
+            friday?: string;
         }
+            | undefined = undefined;
+        let collector:
+            | {
+            firstName: string;
+            lastName: string;
+            address: string;
+            phone?: string;
+        }
+            | undefined = undefined;
 
-        // Para tagesTime: si no se define, asumimos ahora
-        const startTime = values.tagesTime ?? dayjs();
-
-        // validFrom = fecha seleccionada + hora seleccionada
-        const vf = values.tagesDate
-            .hour(startTime.hour())
-            .minute(startTime.minute())
-            .second(0);
-
-        validFrom = vf.toISOString();
-
-        // validUntil -> mismo día 23:59:59 (o vacío y backend decide)
-        const vu = values.tagesDate
-            .hour(23)
-            .minute(59)
-            .second(59);
-        validUntil = vu.toISOString();
-
-        if (canLeaveAlone) {
-            // niño se va solo en ese horario
-            allowedFromTime = startTime.format("HH:mm");
-        } else {
-            // adulto recoge
-            collector = {
-                firstName: values.collectorFirstName || "",
-                lastName: values.collectorLastName || "",
-                address: values.collectorAddress || "",
-                phone: values.collectorPhone || "",
-            };
-
-            // si quieres forzar collectorFirstName/LastName obligatorios:
-            if (!collector.firstName || !collector.lastName) {
-                message.error(
-                    "Bitte Abholer-Daten ausfüllen (Vorname und Nachname)."
-                );
+        if (kind === "TAGES") {
+            // Fecha obligatoria
+            if (!values.tagesDate) {
+                message.error("Bitte ein Datum auswählen (Tagesvollmacht).");
                 return;
             }
 
-            // allowed_from_time para el adulto podría ser igual que tagesTime:
-            allowedFromTime = startTime.format("HH:mm");
-        }
-    }
+            // Para tagesTime: si no se define, asumimos ahora
+            const startTime = values.tagesTime ?? dayjs();
 
-    if (kind === "DAUER") {
-        // dauerFrom opcional -> si no viene, backend usará 'hoy'
-        if (values.dauerFrom) {
-            // si definiste dauerFrom como DatePicker sin hora, uso 00:00
-            validFrom = values.dauerFrom
-                .hour(0)
-                .minute(0)
-                .second(0)
-                .toISOString();
-        } else {
-            validFrom = undefined; // backend pondrá now
-        }
+            // validFrom = fecha seleccionada + hora seleccionada
+            const vf = values.tagesDate
+                .hour(startTime.hour())
+                .minute(startTime.minute())
+                .second(0);
 
-        // dauerUntil opcional -> si no viene, null
-        if (values.dauerUntil) {
-            validUntil = values.dauerUntil
+            validFrom = vf.toISOString();
+
+            // validUntil -> mismo día 23:59:59 (o vacío y backend decide)
+            const vu = values.tagesDate
                 .hour(23)
                 .minute(59)
-                .second(59)
-                .toISOString();
-        } else {
-            validUntil = null;
+                .second(59);
+            validUntil = vu.toISOString();
+
+            if (canLeaveAlone) {
+                // niño se va solo en ese horario
+                allowedFromTime = startTime.format("HH:mm");
+            } else {
+                // adulto recoge
+                collector = {
+                    firstName: values.collectorFirstName || "",
+                    lastName: values.collectorLastName || "",
+                    address: values.collectorAddress || "",
+                    phone: values.collectorPhone || "",
+                };
+
+                // si quieres forzar collectorFirstName/LastName obligatorios:
+                if (!collector.firstName || !collector.lastName) {
+                    message.error(
+                        "Bitte Abholer-Daten ausfüllen (Vorname und Nachname)."
+                    );
+                    return;
+                }
+
+                // allowed_from_time para el adulto podría ser igual que tagesTime:
+                allowedFromTime = startTime.format("HH:mm");
+            }
         }
 
-        if (canLeaveAlone) {
-            // Niño puede ir solo, y se definen horas por día
-            weeklyAllowedFrom = {
-                monday: values.mondayFrom
-                    ? values.mondayFrom.format("HH:mm")
-                    : undefined,
-                tuesday: values.tuesdayFrom
-                    ? values.tuesdayFrom.format("HH:mm")
-                    : undefined,
-                wednesday: values.wednesdayFrom
-                    ? values.wednesdayFrom.format("HH:mm")
-                    : undefined,
-                thursday: values.thursdayFrom
-                    ? values.thursdayFrom.format("HH:mm")
-                    : undefined,
-                friday: values.fridayFrom
-                    ? values.fridayFrom.format("HH:mm")
-                    : undefined,
-            };
-        } else {
-            // adulto recoge
-            collector = {
-                firstName: values.collectorFirstName || "",
-                lastName: values.collectorLastName || "",
-                address: values.collectorAddress || "",
-                phone: values.collectorPhone || "",
-            };
-            if (!collector.firstName || !collector.lastName) {
-                message.error(
-                    "Bitte Abholer-Daten ausfüllen (Vorname und Nachname)."
-                );
-                return;
+        if (kind === "DAUER") {
+            // dauerFrom opcional -> si no viene, backend usará 'hoy'
+            if (values.dauerFrom) {
+                // si definiste dauerFrom como DatePicker sin hora, uso 00:00
+                validFrom = values.dauerFrom
+                    .hour(0)
+                    .minute(0)
+                    .second(0)
+                    .toISOString();
+            } else {
+                validFrom = undefined; // backend pondrá now
             }
 
-            // allowed_from_time (para el adulto) podríamos pedirla o no.
-            // Para simplificar, vamos a NO ponerla en Dauer si no se pide explícitamente.
-            // allowedFromTime = undefined;
+            // dauerUntil opcional -> si no viene, null
+            if (values.dauerUntil) {
+                validUntil = values.dauerUntil
+                    .hour(23)
+                    .minute(59)
+                    .second(59)
+                    .toISOString();
+            } else {
+                validUntil = null;
+            }
+
+            if (canLeaveAlone) {
+                // Niño puede ir solo, y se definen horas por día
+                weeklyAllowedFrom = {
+                    monday: values.mondayFrom
+                        ? values.mondayFrom.format("HH:mm")
+                        : undefined,
+                    tuesday: values.tuesdayFrom
+                        ? values.tuesdayFrom.format("HH:mm")
+                        : undefined,
+                    wednesday: values.wednesdayFrom
+                        ? values.wednesdayFrom.format("HH:mm")
+                        : undefined,
+                    thursday: values.thursdayFrom
+                        ? values.thursdayFrom.format("HH:mm")
+                        : undefined,
+                    friday: values.fridayFrom
+                        ? values.fridayFrom.format("HH:mm")
+                        : undefined,
+                };
+            } else {
+                // adulto recoge
+                collector = {
+                    firstName: values.collectorFirstName || "",
+                    lastName: values.collectorLastName || "",
+                    address: values.collectorAddress || "",
+                    phone: values.collectorPhone || "",
+                };
+                if (!collector.firstName || !collector.lastName) {
+                    message.error(
+                        "Bitte Abholer-Daten ausfüllen (Vorname und Nachname)."
+                    );
+                    return;
+                }
+
+                // allowed_from_time (para el adulto) podríamos pedirla o no.
+                // Para simplificar, vamos a NO ponerla en Dauer si no se pide explícitamente.
+                // allowedFromTime = undefined;
+            }
         }
-    }
         const payload = {
             studentId: values.studentId,
             kind, // "TAGES" | "DAUER"
@@ -351,7 +346,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
     // cuando el user hace click en una fila de resultados
     const handlePickStudent = (s: CheckoutStudentInfo) => {
         setSelectedStudent(s);
-        form.setFieldsValue({ studentId: s.studentId });
+        form.setFieldsValue({studentId: s.studentId});
         message.success(
             `${s.firstName} ${s.lastName} (${s.groupName ?? "—"}) ausgewählt`
         );
@@ -381,8 +376,8 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                     background: "#fafafa",
                 }}
             >
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                    <div style={{ flex: "1 1 240px", minWidth: 240 }}>
+                <div style={{display: "flex", flexWrap: "wrap", gap: 12}}>
+                    <div style={{flex: "1 1 240px", minWidth: 240}}>
                         <Text strong>Schüler suchen</Text>
                         <Input
                             placeholder="z.B. 'so', '1a la' ..."
@@ -392,9 +387,9 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                         />
                     </div>
 
-                    <div style={{ minWidth: 220 }}>
+                    <div style={{minWidth: 220}}>
                         <Text strong>Ausgewählt:</Text>
-                        <div style={{ minHeight: 40 }}>
+                        <div style={{minHeight: 40}}>
                             {selectedStudent ? (
                                 <Tag color="blue">
                                     {selectedStudent.firstName} {selectedStudent.lastName}{" "}
@@ -413,10 +408,10 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                     loading={searchLoading}
                     columns={studentCols}
                     dataSource={studentResults}
-                    pagination={{ pageSize: 5, showSizeChanger: false }}
+                    pagination={{pageSize: 5, showSizeChanger: false}}
                     onRow={(record) => ({
                         onClick: () => handlePickStudent(record),
-                        style: { cursor: "pointer" },
+                        style: {cursor: "pointer"},
                     })}
                 />
             </Space>
@@ -433,9 +428,9 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                 <Form.Item
                     name="studentId"
                     hidden
-                    rules={[{ required: true, message: "Bitte ein Kind auswählen" }]}
+                    rules={[{required: true, message: "Bitte ein Kind auswählen"}]}
                 >
-                    <Input type="hidden" />
+                    <Input type="hidden"/>
                 </Form.Item>
 
                 {/* Tipo Vollmacht */}
@@ -475,7 +470,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                     ]}
                                 >
                                     <DatePicker
-                                        style={{ width: "100%" }}
+                                        style={{width: "100%"}}
                                         format="DD.MM.YYYY"
                                     />
                                 </Form.Item>
@@ -493,7 +488,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                     ]}
                                 >
                                     <TimePicker
-                                        style={{ width: "100%" }}
+                                        style={{width: "100%"}}
                                         format="HH:mm"
                                     />
                                 </Form.Item>
@@ -508,18 +503,18 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                         <Form.Item
                                             name="collectorFirstName"
                                             label="Vorname"
-                                            rules={[{ required: true }]}
+                                            rules={[{required: true}]}
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={12}>
                                         <Form.Item
                                             name="collectorLastName"
                                             label="Nachname"
-                                            rules={[{ required: true }]}
+                                            rules={[{required: true}]}
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -528,9 +523,9 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                         <Form.Item
                                             name="collectorAddress"
                                             label="Adresse"
-                                            rules={[{ required: true }]}
+                                            rules={[{required: true}]}
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={8}>
@@ -538,7 +533,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                             name="collectorPhone"
                                             label="Telefon"
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -551,7 +546,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                 label="Kind darf alleine gehen ab (Uhrzeit)"
                             >
                                 <TimePicker
-                                    style={{ width: 160 }}
+                                    style={{width: 160}}
                                     format="HH:mm"
                                 />
                             </Form.Item>
@@ -567,7 +562,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                             <Col span={12}>
                                 <Form.Item name="dauerFrom" label="Gültig ab (Datum)">
                                     <DatePicker
-                                        style={{ width: "100%" }}
+                                        style={{width: "100%"}}
                                         format="DD.MM.YYYY"
                                     />
                                 </Form.Item>
@@ -575,7 +570,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                             <Col span={12}>
                                 <Form.Item name="dauerUntil" label="Gültig bis (Datum)">
                                     <DatePicker
-                                        style={{ width: "100%" }}
+                                        style={{width: "100%"}}
                                         format="DD.MM.YYYY"
                                     />
                                 </Form.Item>
@@ -590,18 +585,18 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                         <Form.Item
                                             name="collectorFirstName"
                                             label="Vorname"
-                                            rules={[{ required: true }]}
+                                            rules={[{required: true}]}
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={12}>
                                         <Form.Item
                                             name="collectorLastName"
                                             label="Nachname"
-                                            rules={[{ required: true }]}
+                                            rules={[{required: true}]}
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -610,9 +605,9 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                         <Form.Item
                                             name="collectorAddress"
                                             label="Adresse"
-                                            rules={[{ required: true }]}
+                                            rules={[{required: true}]}
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={8}>
@@ -620,7 +615,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                             name="collectorPhone"
                                             label="Telefon"
                                         >
-                                            <Input />
+                                            <Input/>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -636,14 +631,14 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                     Ab welcher Uhrzeit darf das Kind alleine
                                     gehen?
                                 </Text>
-                                <Row gutter={16} style={{ marginTop: 12 }}>
+                                <Row gutter={16} style={{marginTop: 12}}>
                                     <Col span={8}>
                                         <Form.Item
                                             name="mondayFrom"
                                             label="Montag"
                                         >
                                             <TimePicker
-                                                style={{ width: "100%" }}
+                                                style={{width: "100%"}}
                                                 format="HH:mm"
                                             />
                                         </Form.Item>
@@ -654,7 +649,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                             label="Dienstag"
                                         >
                                             <TimePicker
-                                                style={{ width: "100%" }}
+                                                style={{width: "100%"}}
                                                 format="HH:mm"
                                             />
                                         </Form.Item>
@@ -665,7 +660,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                             label="Mittwoch"
                                         >
                                             <TimePicker
-                                                style={{ width: "100%" }}
+                                                style={{width: "100%"}}
                                                 format="HH:mm"
                                             />
                                         </Form.Item>
@@ -678,7 +673,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                             label="Donnerstag"
                                         >
                                             <TimePicker
-                                                style={{ width: "100%" }}
+                                                style={{width: "100%"}}
                                                 format="HH:mm"
                                             />
                                         </Form.Item>
@@ -689,7 +684,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                                             label="Freitag"
                                         >
                                             <TimePicker
-                                                style={{ width: "100%" }}
+                                                style={{width: "100%"}}
                                                 format="HH:mm"
                                             />
                                         </Form.Item>
@@ -705,16 +700,16 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
             <Space
                 direction="vertical"
                 size={4}
-                style={{ marginTop: 16 }}
+                style={{marginTop: 16}}
             >
-                <Text type="secondary" style={{ fontSize: 12 }}>
+                <Text type="secondary" style={{fontSize: 12}}>
                     Hinweis:
                     {" "}
                     Tagesvollmacht = nur für einen Tag.
                     Dauervollmacht = gültig für längeren Zeitraum.
                 </Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                    Wenn "Kind darf alleine gehen" aktiv ist,
+                <Text type="secondary" style={{fontSize: 12}}>
+                    Wenn &quot;Kind darf alleine gehen&quot; aktiv ist,
                     wird eine Selbstentlassungs-Erlaubnis gespeichert.
                     Sonst wird eine Abholberechtigung gespeichert.
                 </Text>

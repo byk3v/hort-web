@@ -2,13 +2,13 @@
 
 import {useEffect, useState, useMemo, useCallback} from "react";
 import {Table, Tag, Typography, Space, Select, Button, message} from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type {ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
-import { fetchPermissions } from "../api";
+import {fetchPermissions} from "../api";
 import {PermissionViewDto} from "@/src/types/PermissionViewDto";
 import AddPermissionModal from "@/src/features/permissions/components/AddPermissionModal";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
 
 export default function PermissionsClient() {
     const [statusFilter, setStatusFilter] = useState<"ACTIVE" | "ALL">("ACTIVE");
@@ -97,8 +97,8 @@ export default function PermissionsClient() {
                     : <Tag>Inaktiv</Tag>
             ),
             filters: [
-                { text: "Aktiv", value: "ACTIVE" },
-                { text: "Inaktiv", value: "INACTIVE" },
+                {text: "Aktiv", value: "ACTIVE"},
+                {text: "Inaktiv", value: "INACTIVE"},
             ],
             onFilter: (value, rec) => rec.status === value,
         },
@@ -110,8 +110,8 @@ export default function PermissionsClient() {
                 ? <Tag color="purple">Allein gehen</Tag>
                 : <Tag color="blue">Abholer</Tag>,
             filters: [
-                { text: "Abholer", value: "COLLECTOR" },
-                { text: "Allein gehen", value: "SELF_DISMISSAL" },
+                {text: "Abholer", value: "COLLECTOR"},
+                {text: "Allein gehen", value: "SELF_DISMISSAL"},
             ],
             onFilter: (value, rec) => rec.permissionKind === value,
             width: 140,
@@ -119,8 +119,8 @@ export default function PermissionsClient() {
     ], []);
 
     return (
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            <Title level={3} style={{ margin: 0 }}>Vollmachten</Title>
+        <Space direction="vertical" size="large" style={{width: "100%"}}>
+            <Title level={3} style={{margin: 0}}>Vollmachten</Title>
 
             <Space>
                 <Text type="secondary">Filter Status:</Text>
@@ -128,10 +128,10 @@ export default function PermissionsClient() {
                     value={statusFilter}
                     onChange={setStatusFilter}
                     options={[
-                        { value: "ACTIVE", label: "Nur aktive" },
-                        { value: "ALL", label: "Alle" },
+                        {value: "ACTIVE", label: "Nur aktive"},
+                        {value: "ALL", label: "Alle"},
                     ]}
-                    style={{ width: 160 }}
+                    style={{width: 160}}
                 />
                 <Button
                     type="primary"
@@ -146,7 +146,7 @@ export default function PermissionsClient() {
                 loading={loading}
                 columns={columns}
                 dataSource={rows}
-                pagination={{ pageSize: 10, showSizeChanger: true }}
+                pagination={{pageSize: 10, showSizeChanger: true}}
             />
             {openNew && (
                 <AddPermissionModal

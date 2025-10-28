@@ -143,9 +143,9 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                         },
                     ]}
                 >
-                    {(fields, { add, remove }) => (
+                    {(fields, {add, remove}) => (
                         <>
-                            {fields.map(({ key, name, ...restField }) => (
+                            {fields.map(({key, name, ...restField}) => (
                                 <div
                                     key={key}
                                     style={{
@@ -161,9 +161,9 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                                                 {...restField}
                                                 name={[name, "firstName"]}
                                                 label="Vorname"
-                                                rules={[{ required: true, message: "Required" }]}
+                                                rules={[{required: true, message: "Required"}]}
                                             >
-                                                <Input />
+                                                <Input/>
                                             </Form.Item>
                                         </Col>
 
@@ -172,17 +172,17 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                                                 {...restField}
                                                 name={[name, "lastName"]}
                                                 label="Nachname"
-                                                rules={[{ required: true, message: "Required" }]}
+                                                rules={[{required: true, message: "Required"}]}
                                             >
-                                                <Input />
+                                                <Input/>
                                             </Form.Item>
                                         </Col>
 
-                                        <Col span={2} style={{ display: "flex", alignItems: "center" }}>
+                                        <Col span={2} style={{display: "flex", alignItems: "center"}}>
                                             {fields.length > 1 && (
                                                 <MinusCircleOutlined
                                                     onClick={() => remove(name)}
-                                                    style={{ color: "#ff4d4f", fontSize: 16, cursor: "pointer" }}
+                                                    style={{color: "#ff4d4f", fontSize: 16, cursor: "pointer"}}
                                                 />
                                             )}
                                         </Col>
@@ -195,9 +195,9 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                                                 {...restField}
                                                 name={[name, "phone"]}
                                                 label="Phone"
-                                                rules={[{ required: true, message: "Required" }]}
+                                                rules={[{required: true, message: "Required"}]}
                                             >
-                                                <Input />
+                                                <Input/>
                                             </Form.Item>
                                         </Col>
 
@@ -206,9 +206,9 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                                                 {...restField}
                                                 name={[name, "address"]}
                                                 label="Address"
-                                                rules={[{ required: true, message: "Required" }]}
+                                                rules={[{required: true, message: "Required"}]}
                                             >
-                                                <Input />
+                                                <Input/>
                                             </Form.Item>
                                         </Col>
 
@@ -224,7 +224,7 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                                                 {...restField}
                                                 name={[name, "mainCollector"]}
                                                 valuePropName="checked"
-                                                style={{ marginBottom: 0 }}
+                                                style={{marginBottom: 0}}
                                             >
                                                 <Checkbox>Haupt Abholer</Checkbox>
                                             </Form.Item>
@@ -238,7 +238,7 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
                                     type="dashed"
                                     onClick={() => add()}
                                     block
-                                    icon={<PlusOutlined />}
+                                    icon={<PlusOutlined/>}
                                 >
                                     Abholer hinzufügen
                                 </Button>

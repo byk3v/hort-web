@@ -19,11 +19,11 @@ type NewPermissionRequest = {
 
     // CASE canLeaveAlone = true AND kind = "DAUER" -> weekly times:
     weeklyAllowedFrom?: {
-        monday?:   string; // "15:30"
-        tuesday?:  string;
-        wednesday?:string;
+        monday?: string; // "15:30"
+        tuesday?: string;
+        wednesday?: string;
         thursday?: string;
-        friday?:   string;
+        friday?: string;
     };
 
     // CASE canLeaveAlone = true AND kind = "TAGES" -> simple allowedFromTime:
