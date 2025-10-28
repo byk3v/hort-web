@@ -16,6 +16,7 @@ export type CheckoutStudentInfo = {
     canLeaveAloneToday: boolean;
     allowedToLeaveFromTime: string | null;
     selfDismissalId: number | null;
+    checkedOutToday: boolean;
     allowedCollectors: CheckoutCollectorInfo[];
 };
 

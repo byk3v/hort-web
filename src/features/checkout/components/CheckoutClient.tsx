@@ -63,7 +63,16 @@ export default function CheckoutClient() {
             message.success(
                 `${collector.firstName} ${collector.lastName} hat ${student.firstName} ${student.lastName} abgeholt`
             );
-            fetchData(query.trim()); // refrescar lista si quieres
+            setRows(prev =>
+                prev.map(s =>
+                    s.studentId === student.studentId
+                        ? { ...s, checkedOutToday: true }
+                        : s
+                )
+            );
+
+            // Refresca en segundo plano
+            setTimeout(() => fetchData(query.trim()), 1000);
         } catch (e) {
             console.error(e);
             message.error("Fehler beim Checkout speichern");
@@ -76,7 +85,15 @@ export default function CheckoutClient() {
             message.success(
                 `${student.firstName} ${student.lastName} hat sich selbst abgemeldet`
             );
-            fetchData(query.trim());
+            setRows(prev =>
+                prev.map(s =>
+                    s.studentId === student.studentId
+                        ? { ...s, checkedOutToday: true }
+                        : s
+                )
+            );
+
+            setTimeout(() => fetchData(query.trim()), 1000);
         } catch (e) {
             console.error(e);
             message.error("Fehler beim Checkout speichern");
@@ -90,6 +107,7 @@ export default function CheckoutClient() {
             render: (_, r) => (
                 <span>
           {r.firstName} {r.lastName}
+                    {r.checkedOutToday && <Tag color="red">Schon abgemeldet</Tag>}
         </span>
             ),
             sorter: (a, b) =>
@@ -117,13 +135,17 @@ export default function CheckoutClient() {
                     <Space direction="vertical" size={4}>
                         <Tag color="green">Ja ab {fromHuman}</Tag>
 
-                        <Button
-                            size="small"
-                            icon={<UserOutlined />}
-                            onClick={() => handleSelfCheckout(r)}
-                        >
-                            Selbst gehen lassen
-                        </Button>
+                        {r.checkedOutToday ? (
+                            <Tag color="red">Schon abgemeldet</Tag>
+                        ) : (
+                            <Button
+                                size="small"
+                                icon={<UserOutlined />}
+                                onClick={() => handleSelfCheckout(r)}
+                            >
+                                Selbst gehen lassen
+                            </Button>
+                        )}
                     </Space>
                 );
             },
@@ -163,14 +185,18 @@ export default function CheckoutClient() {
                                     </Text>
                                 )}
 
-                                <Button
-                                    size="small"
-                                    type="primary"
-                                    icon={<LogoutOutlined />}
-                                    onClick={() => handleCollectorCheckout(r, c)}
-                                >
-                                    Abmelden
-                                </Button>
+                                {r.checkedOutToday ? (
+                                    <Tag color="red">Schon gegangen</Tag>
+                                ) : (
+                                    <Button
+                                        size="small"
+                                        type="primary"
+                                        icon={<LogoutOutlined />}
+                                        onClick={() => handleCollectorCheckout(r, c)}
+                                    >
+                                        Abmelden
+                                    </Button>
+                                )}
                             </div>
                         ))}
                     </Space>
