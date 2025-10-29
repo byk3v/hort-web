@@ -1,0 +1,57 @@
+.headerRoot {
+    background: var(--ant-color-bg-container);
+    padding: 0 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(0,0,0,0.88);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.iconButton {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-size: 18px;
+    color: rgba(0,0,0,0.75);
+    line-height: 1;
+}
+
+.iconButton:hover {
+    color: rgba(0,0,0,0.95);
+}
+
+.userButton {
+    background: transparent;
+    border: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: rgba(0,0,0,0.88);
+    font-size: 14px;
+    padding: 0;
+}
+
+.avatar {
+    background-color: #722ed1; /* lila suave Ant Design */
+}
+
+.userName {
+    font-weight: 500;
+    line-height: 1;
+}
