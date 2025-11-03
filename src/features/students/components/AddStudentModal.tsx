@@ -3,16 +3,17 @@
 import {useState} from "react";
 import {Modal, Form, Input, Button, Checkbox, Divider, message, Row, Col} from "antd";
 import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import {createStudentOnboarding} from "@/src/features/students/api";
+import type { CollectorForOnboarding } from "@/src/types/CollectorForOnboarding";
 
 type Props = {
     open: boolean;
-    onClose: () => void;
-    onCreated?: () => void;
+    onCloseAction: () => void;
+    onCreatedAction?: () => void;
 };
 
-export default function AddStudentModal({open, onClose, onCreated}: Props) {
+export default function AddStudentModal({open, onCloseAction, onCreatedAction}: Props) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -20,17 +21,19 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
         try {
             const values = await form.validateFields();
 
-            const collectors = values.collectors.map((c: any) => ({
+            const collectors = (values.collectors as {
+                firstName: string; lastName: string; address: string; phone?: string; validRange?: Dayjs[]; mainCollector?: boolean;
+            }[]).map((c) => ({
                 firstName: c.firstName,
                 lastName: c.lastName,
                 address: c.address,
                 phone: c.phone,
-                validFrom: "",
-                validUntil: "",
-                type: "COLLECTOR",
-                permissionType: "PERMANENT",
+                validFrom: c.validRange?.[0] ? c.validRange[0].toISOString() : null,
+                validUntil: c.validRange?.[1] ? c.validRange[1].toISOString() : null,
+                type: "COLLECTOR" as const,
+                permissionType: "PERMANENT" as const,
                 mainCollector: c.mainCollector ?? false,
-            }));
+            }) as CollectorForOnboarding);
 
             const payload = {
                 student: {
@@ -47,8 +50,8 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
             await createStudentOnboarding(payload);
             message.success("Student successfully added!");
             form.resetFields();
-            onClose();
-            onCreated?.();
+            onCloseAction();
+            onCreatedAction?.();
         } catch (err) {
             console.error(err);
             message.error("Error while saving student");
@@ -63,13 +66,12 @@ export default function AddStudentModal({open, onClose, onCreated}: Props) {
             open={open}
             onCancel={() => {
                 form.resetFields();
-                onClose();
+                onCloseAction();
             }}
             onOk={handleSubmit}
             okText="Speichern"
             confirmLoading={loading}
             width={750}
-            destroyOnClose
         >
             <Form
                 form={form}

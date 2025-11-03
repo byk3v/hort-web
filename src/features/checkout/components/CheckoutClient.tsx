@@ -53,7 +53,7 @@ export default function CheckoutClient() {
     }, [query, fetchData]);
 
     // Helpers para acciones
-    const handleCollectorCheckout = async (
+    const handleCollectorCheckout = useCallback(async (
         student: CheckoutStudentInfo,
         collector: CheckoutCollectorInfo
     ) => {
@@ -62,42 +62,25 @@ export default function CheckoutClient() {
             message.success(
                 `${collector.firstName} ${collector.lastName} hat ${student.firstName} ${student.lastName} abgeholt`
             );
-            setRows(prev =>
-                prev.map(s =>
-                    s.studentId === student.studentId
-                        ? {...s, checkedOutToday: true}
-                        : s
-                )
-            );
-
-            // Refresca en segundo plano
+            setRows(prev => prev.map(s => s.studentId === student.studentId ? { ...s, checkedOutToday: true } : s));
             setTimeout(() => fetchData(query.trim()), 1000);
         } catch (e) {
             console.error(e);
             message.error("Fehler beim Checkout speichern");
         }
-    };
+    }, [fetchData, query]);
 
-    const handleSelfCheckout = async (student: CheckoutStudentInfo) => {
+    const handleSelfCheckout = useCallback(async (student: CheckoutStudentInfo) => {
         try {
             await confirmSelfDismissal(student.studentId);
-            message.success(
-                `${student.firstName} ${student.lastName} hat sich selbst abgemeldet`
-            );
-            setRows(prev =>
-                prev.map(s =>
-                    s.studentId === student.studentId
-                        ? {...s, checkedOutToday: true}
-                        : s
-                )
-            );
-
+            message.success(`${student.firstName} ${student.lastName} hat sich selbst abgemeldet`);
+            setRows(prev => prev.map(s => s.studentId === student.studentId ? { ...s, checkedOutToday: true } : s));
             setTimeout(() => fetchData(query.trim()), 1000);
         } catch (e) {
             console.error(e);
             message.error("Fehler beim Checkout speichern");
         }
-    };
+    }, [fetchData, query]);
 
     const columns: ColumnsType<CheckoutStudentInfo> = useMemo(() => [
         {

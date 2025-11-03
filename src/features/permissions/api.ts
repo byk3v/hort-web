@@ -1,5 +1,6 @@
 import {api} from "@/src/lib/axios";
 import {PermissionViewDto} from "@/src/types/PermissionViewDto";
+import type { NewPermissionRequest } from "@/src/types/NewPermissionRequest";
 
 export type GetStudentsParams = { name?: string; groupId?: number };
 

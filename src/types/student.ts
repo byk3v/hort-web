@@ -13,4 +13,5 @@ export interface StudentDTO {
     address?: string;
     group: string;
     collectors: CollectorDTO[];
+    canLeaveAlone?: boolean; // optional hinzugefügt
 }

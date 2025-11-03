@@ -151,10 +151,10 @@ export default function PermissionsClient() {
             {openNew && (
                 <AddPermissionModal
                     open={openNew}
-                    onClose={() => setOpenNew(false)}
-                    onCreated={async () => {
+                    onCloseAction={() => setOpenNew(false)}
+                    onCreatedAction={async () => {
                         setOpenNew(false);
-                        await loadPermissions(); // recarga la lista
+                        await loadPermissions();
                     }}
                 />
             )}

@@ -22,6 +22,7 @@ import dayjs, {Dayjs} from "dayjs";
 import {createNewPermission} from "@/src/features/permissions/api";
 import {CheckoutStudentInfo} from "@/src/types/CheckoutSearchResponse";
 import {searchStudentForCheckout} from "@/src/features/checkout/api";
+import type { NewPermissionRequest } from "@/src/types/NewPermissionRequest";
 import {ColumnsType} from "antd/es/table";
 
 const {Text} = Typography;
@@ -57,13 +58,9 @@ type FormValues = {
     collectorPhone?: string;
 };
 
-type Props = {
-    open: boolean;
-    onClose: () => void;
-    onCreated?: () => void;
-};
+type Props = { open: boolean; onCloseAction: () => void; onCreatedAction?: () => void; };
 
-export default function AddPermissionModal({open, onClose, onCreated}: Props) {
+export default function AddPermissionModal({open, onCloseAction, onCreatedAction}: Props) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
@@ -316,7 +313,7 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                 // allowedFromTime = undefined;
             }
         }
-        const payload = {
+        const payload: NewPermissionRequest = {
             studentId: values.studentId,
             kind, // "TAGES" | "DAUER"
             canLeaveAlone,
@@ -331,8 +328,8 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
             setLoading(true);
             await createNewPermission(payload);
             message.success("Vollmacht erstellt");
-            if (onCreated) {
-                onCreated();
+            if (onCreatedAction) {
+                onCreatedAction();
             } // cierra modal + refresca tabla en el padre
             form.resetFields();
         } catch (err) {
@@ -341,27 +338,17 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
         } finally {
             setLoading(false);
         }
-    }, [form, kind, canLeaveAlone, onCreated, selectedStudent]);
-
-    // cuando el user hace click en una fila de resultados
-    const handlePickStudent = (s: CheckoutStudentInfo) => {
-        setSelectedStudent(s);
-        form.setFieldsValue({studentId: s.studentId});
-        message.success(
-            `${s.firstName} ${s.lastName} (${s.groupName ?? "—"}) ausgewählt`
-        );
-    };
+    }, [form, kind, canLeaveAlone, onCreatedAction]);
 
     return (
         <Modal
             open={open}
-            onCancel={onClose}
+            onCancel={onCloseAction}
             onOk={handleOk}
             okText="Speichern"
             confirmLoading={loading}
             title="Neue Vollmacht"
             width={900}
-            destroyOnClose
         >
             {/* BLOQUE: búsqueda y selección del alumno */}
             <Space
@@ -410,8 +397,12 @@ export default function AddPermissionModal({open, onClose, onCreated}: Props) {
                     dataSource={studentResults}
                     pagination={{pageSize: 5, showSizeChanger: false}}
                     onRow={(record) => ({
-                        onClick: () => handlePickStudent(record),
-                        style: {cursor: "pointer"},
+                        onClick: () => {
+                            setSelectedStudent(record);
+                            form.setFieldsValue({ studentId: record.studentId });
+                            message.success(`${record.firstName} ${record.lastName} (${record.groupName ?? '—'}) ausgewählt`);
+                        },
+                        style: {cursor: 'pointer'},
                     })}
                 />
             </Space>

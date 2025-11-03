@@ -1,4 +1,4 @@
-type NewPermissionRequest = {
+export type NewPermissionRequest = {
     studentId: number;
     kind: "TAGES" | "DAUER";         // Tagesvollmacht vs Dauervollmacht
     canLeaveAlone: boolean;          // true => SelfDismissal, false => PickupRight

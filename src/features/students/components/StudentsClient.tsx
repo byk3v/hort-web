@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Button, Input, InputNumber, message, Space, Table, Tag, Tooltip, Typography} from 'antd';
 import type {ColumnsType} from 'antd/es/table';
 import {PlusOutlined, ReloadOutlined, SearchOutlined} from '@ant-design/icons';
@@ -17,13 +17,10 @@ export default function StudentsClient() {
     const [groupId, setGroupId] = useState<number | undefined>(undefined);
     const [openAdd, setOpenAdd] = useState(false);
 
-    const load = async () => {
+    const load = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await getStudents({
-                name: name || undefined,
-                groupId: groupId,
-            });
+            const data = await getStudents({ name: name || undefined, groupId });
             setRows(data);
         } catch (e) {
             console.error(e);
@@ -31,11 +28,9 @@ export default function StudentsClient() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [name, groupId]);
 
-    useEffect(() => {
-        load();
-    }, []);
+    useEffect(() => { load(); }, [load]);
 
     const onSearch = () => load();
 
@@ -72,11 +67,10 @@ export default function StudentsClient() {
             },
             {
                 title: 'Allein gehen?',
-                dataIndex: 'canLeaveAlone' as any,
+                dataIndex: 'canLeaveAlone',
                 key: 'canLeaveAlone',
                 width: 140,
-                render: (v: boolean) =>
-                    v ? <Tag color="green">Ja</Tag> : <Tag>Nein</Tag>,
+                render: (v: boolean | undefined) => v ? <Tag color="green">Ja</Tag> : <Tag>Nein</Tag>,
             },
             {
                 title: 'Berechtigte Abholer',
@@ -157,8 +151,8 @@ export default function StudentsClient() {
             />
             <AddStudentModal
                 open={openAdd}
-                onClose={() => setOpenAdd(false)}
-                onCreated={load}
+                onCloseAction={() => setOpenAdd(false)}
+                onCreatedAction={load}
             />
         </Space>
     );

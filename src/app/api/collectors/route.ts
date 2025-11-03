@@ -2,9 +2,16 @@ import { NextResponse } from "next/server";
 
 const BASE = process.env.BACKEND_API_URL ?? "http://localhost:4000";
 
-export async function GET() {
+function buildAuthHeaders(req: Request, base: Record<string,string>) {
+    const auth = req.headers.get('authorization');
+    if (auth) base.Authorization = auth;
+    return base;
+}
+
+export async function GET(req: Request) {
+    const headers = buildAuthHeaders(req, { Accept: 'application/json' });
     const upstream = await fetch(`${BASE}/api/collectors`, {
-        headers: { Accept: "application/json" },
+        headers,
         // cache: "no-store",
     });
 
