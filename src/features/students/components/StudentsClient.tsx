@@ -17,10 +17,13 @@ export default function StudentsClient() {
     const [groupId, setGroupId] = useState<number | undefined>(undefined);
     const [openAdd, setOpenAdd] = useState(false);
 
-    const load = useCallback(async () => {
+    const load = async () => {
         try {
             setLoading(true);
-            const data = await getStudents({ name: name || undefined, groupId });
+            const data = await getStudents({
+                name: name || undefined,
+                groupId: groupId,
+            });
             setRows(data);
         } catch (e) {
             console.error(e);
@@ -28,9 +31,11 @@ export default function StudentsClient() {
         } finally {
             setLoading(false);
         }
-    }, [name, groupId]);
+    };
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => {
+        load();
+    }, []);
 
     const onSearch = () => load();
 
@@ -67,10 +72,11 @@ export default function StudentsClient() {
             },
             {
                 title: 'Allein gehen?',
-                dataIndex: 'canLeaveAlone',
+                dataIndex: 'canLeaveAlone' as any,
                 key: 'canLeaveAlone',
                 width: 140,
-                render: (v: boolean | undefined) => v ? <Tag color="green">Ja</Tag> : <Tag>Nein</Tag>,
+                render: (v: boolean) =>
+                    v ? <Tag color="green">Ja</Tag> : <Tag>Nein</Tag>,
             },
             {
                 title: 'Berechtigte Abholer',

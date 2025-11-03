@@ -3,9 +3,8 @@
 import {useState} from "react";
 import {Modal, Form, Input, Button, Checkbox, Divider, message, Row, Col} from "antd";
 import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import {createStudentOnboarding} from "@/src/features/students/api";
-import type { CollectorForOnboarding } from "@/src/types/CollectorForOnboarding";
 
 type Props = {
     open: boolean;
@@ -21,19 +20,17 @@ export default function AddStudentModal({open, onCloseAction, onCreatedAction}: 
         try {
             const values = await form.validateFields();
 
-            const collectors = (values.collectors as {
-                firstName: string; lastName: string; address: string; phone?: string; validRange?: Dayjs[]; mainCollector?: boolean;
-            }[]).map((c) => ({
+            const collectors = values.collectors.map((c: any) => ({
                 firstName: c.firstName,
                 lastName: c.lastName,
                 address: c.address,
                 phone: c.phone,
-                validFrom: c.validRange?.[0] ? c.validRange[0].toISOString() : null,
-                validUntil: c.validRange?.[1] ? c.validRange[1].toISOString() : null,
-                type: "COLLECTOR" as const,
-                permissionType: "PERMANENT" as const,
+                validFrom: "",
+                validUntil: "",
+                type: "COLLECTOR",
+                permissionType: "PERMANENT",
                 mainCollector: c.mainCollector ?? false,
-            }) as CollectorForOnboarding);
+            }));
 
             const payload = {
                 student: {
@@ -72,6 +69,7 @@ export default function AddStudentModal({open, onCloseAction, onCreatedAction}: 
             okText="Speichern"
             confirmLoading={loading}
             width={750}
+            destroyOnClose
         >
             <Form
                 form={form}

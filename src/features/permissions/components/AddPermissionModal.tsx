@@ -338,7 +338,16 @@ export default function AddPermissionModal({open, onCloseAction, onCreatedAction
         } finally {
             setLoading(false);
         }
-    }, [form, kind, canLeaveAlone, onCreatedAction]);
+    }, [form, kind, canLeaveAlone, onCreatedAction, selectedStudent]);
+
+    // cuando el user hace click en una fila de resultados
+    const handlePickStudent = (s: CheckoutStudentInfo) => {
+        setSelectedStudent(s);
+        form.setFieldsValue({studentId: s.studentId});
+        message.success(
+            `${s.firstName} ${s.lastName} (${s.groupName ?? "—"}) ausgewählt`
+        );
+    };
 
     return (
         <Modal
@@ -349,6 +358,7 @@ export default function AddPermissionModal({open, onCloseAction, onCreatedAction
             confirmLoading={loading}
             title="Neue Vollmacht"
             width={900}
+            destroyOnClose
         >
             {/* BLOQUE: búsqueda y selección del alumno */}
             <Space
@@ -397,12 +407,8 @@ export default function AddPermissionModal({open, onCloseAction, onCreatedAction
                     dataSource={studentResults}
                     pagination={{pageSize: 5, showSizeChanger: false}}
                     onRow={(record) => ({
-                        onClick: () => {
-                            setSelectedStudent(record);
-                            form.setFieldsValue({ studentId: record.studentId });
-                            message.success(`${record.firstName} ${record.lastName} (${record.groupName ?? '—'}) ausgewählt`);
-                        },
-                        style: {cursor: 'pointer'},
+                        onClick: () => handlePickStudent(record),
+                        style: {cursor: "pointer"},
                     })}
                 />
             </Space>
