@@ -3,7 +3,6 @@ import { ConfigProvider } from 'antd';
 import '../styles/globals.css';
 import AppShell from "@/src/features/layout/AppShell";
 import { KeycloakProvider } from "@/src/lib/auth/KeycloakProvider";
-import "../.env.local";
 
 export const metadata: Metadata = { title: 'HortApp', description: 'Panel Hort' };
 
@@ -13,9 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body>
         <ConfigProvider>
             <KeycloakProvider config={{
-                url: process.env.KEYCLOAK_URL,
-                realm: process.env.KEYCLOAK_REALM,
-                clientId: process.env.KEYCLOAK_CLIENT_ID,
+                url: process.env.NEXT_PUBLIC_KEYCLOAK_URL!,
+                realm: process.env.NEXT_PUBLIC_KEYCLOAK_REALM!,
+                clientId: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID!,
             }}>
                 <AppShell>{children}</AppShell>
             </KeycloakProvider>
