@@ -1,9 +1,9 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Keycloak from "keycloak-js";
-// Fehlendes Interface für den Cast, behebt TS2304
+import { setTokenProvider } from "@/src/lib/axios";
+
 interface KeycloakEnvConfigInitConfig { url: string; realm: string; clientId: string; }
-import { setAuthToken } from "@/src/lib/axios";
 
 interface AuthContextValue {
   keycloak: Keycloak | null;
@@ -39,53 +39,47 @@ export function KeycloakProvider({ children, config }: Props) {
 
   const isValidConfig = Boolean(config.url && config.realm && config.clientId);
 
+  // —— función central: garantiza token fresco
+  const getToken = async (): Promise<string | null> => {
+    if (!keycloak) return null;
+    try {
+      await keycloak.updateToken(30); // renueva si faltan <30s
+      return keycloak.token ?? null;
+    } catch (e) {
+      console.error("updateToken failed", e);
+      // keycloak.login(); // opcional si quieres forzar relogin
+      return null;
+    }
+  };
+
+  // —— registra el proveedor para Axios cuando exista KC
+  useEffect(() => {
+    setTokenProvider(getToken);
+  }, [keycloak]);
+
   useEffect(() => {
     let active = true;
     if (!isValidConfig) {
-      console.warn("Keycloak-Konfiguration unvollständig (url/realm/clientId fehlen). Überspringe Initialisierung.");
+      console.warn("Keycloak config incompleta. Omito init.");
       setInitialized(true);
       return () => { active = false; };
     }
 
-    // Konstruktion absichern (Types casten, da keycloak-js ggf. generische OIDC Config erwartet)
     const kc = new Keycloak({
       url: config.url!,
       realm: config.realm!,
       clientId: config.clientId!
     } as KeycloakEnvConfigInitConfig);
+
     setKeycloak(kc);
 
     kc.init({ onLoad: "login-required", checkLoginIframe: false })
-      .then((auth) => {
-        if (!active) return;
-        setAuthenticated(Boolean(auth));
-        setInitialized(true);
-        if (auth && kc.token) {
-          setToken(kc.token);
-          setAuthToken(kc.token);
-          const parsed: KeycloakTokenParsed = (kc.tokenParsed as KeycloakTokenParsed) || {};
-          setUser({
-            username: parsed.preferred_username || parsed.username,
-            firstName: parsed.given_name,
-            lastName: parsed.family_name,
-            email: parsed.email,
-            fullName: parsed.name || [parsed.given_name, parsed.family_name].filter(Boolean).join(' '),
-            roles: parsed.realm_access?.roles || parsed.resource_access?.[config.clientId!]?.roles || []
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Keycloak init error", err);
-        setInitialized(true);
-      });
-
-    const interval = setInterval(() => {
-      if (!kc.token) return;
-      kc.updateToken(60)
-        .then((refreshed) => {
-          if (refreshed && kc.token) {
+        .then((auth) => {
+          if (!active) return;
+          setAuthenticated(Boolean(auth));
+          setInitialized(true);
+          if (auth && kc.token) {
             setToken(kc.token);
-            setAuthToken(kc.token);
             const parsed: KeycloakTokenParsed = (kc.tokenParsed as KeycloakTokenParsed) || {};
             setUser({
               username: parsed.preferred_username || parsed.username,
@@ -97,7 +91,30 @@ export function KeycloakProvider({ children, config }: Props) {
             });
           }
         })
-        .catch((err) => console.error("Token refresh failed", err));
+        .catch((err) => {
+          console.error("Keycloak init error", err);
+          setInitialized(true);
+        });
+
+    // (Opcional) interval para alargar sesión mientras hay actividad
+    const interval = setInterval(() => {
+      if (!kc.token) return;
+      kc.updateToken(60)
+          .then((refreshed) => {
+            if (refreshed && kc.token) {
+              setToken(kc.token);
+              const parsed: KeycloakTokenParsed = (kc.tokenParsed as KeycloakTokenParsed) || {};
+              setUser({
+                username: parsed.preferred_username || parsed.username,
+                firstName: parsed.given_name,
+                lastName: parsed.family_name,
+                email: parsed.email,
+                fullName: parsed.name || [parsed.given_name, parsed.family_name].filter(Boolean).join(' '),
+                roles: parsed.realm_access?.roles || parsed.resource_access?.[config.clientId!]?.roles || []
+              });
+            }
+          })
+          .catch((err) => console.error("Token refresh failed", err));
     }, 30000);
 
     return () => {
@@ -108,18 +125,7 @@ export function KeycloakProvider({ children, config }: Props) {
 
   const login = () => { if (keycloak) keycloak.login(); };
   const logout = () => { if (keycloak) keycloak.logout({ redirectUri: window.location.origin }); };
-  const refreshToken = async () => {
-    if (!keycloak) return;
-    try {
-      const refreshed = await keycloak.updateToken(60);
-      if (refreshed && keycloak.token) {
-        setToken(keycloak.token);
-        setAuthToken(keycloak.token);
-      }
-    } catch (e) {
-      console.error("Manual refresh error", e);
-    }
-  };
+  const refreshToken = async () => { await getToken(); };
 
   const computeLogoutUrl = () => {
     if (!isValidConfig) return undefined;
@@ -130,9 +136,9 @@ export function KeycloakProvider({ children, config }: Props) {
   const logoutUrl = computeLogoutUrl();
 
   return (
-    <AuthContext.Provider value={{ keycloak, initialized, authenticated, token, user, login, logout, logoutUrl, buildLogoutUrl: computeLogoutUrl, refreshToken }}>
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider value={{ keycloak, initialized, authenticated, token, user, login, logout, logoutUrl, buildLogoutUrl: computeLogoutUrl, refreshToken }}>
+        {children}
+      </AuthContext.Provider>
   );
 }
 
@@ -149,6 +155,6 @@ interface KeycloakTokenParsed {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth muss innerhalb KeycloakProvider verwendet werden");
+  if (!ctx) throw new Error("useAuth debe usarse dentro de KeycloakProvider");
   return ctx;
 }
