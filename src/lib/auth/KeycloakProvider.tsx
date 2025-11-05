@@ -10,8 +10,18 @@ interface AuthContextValue {
   initialized: boolean;
   authenticated: boolean;
   token: string | undefined;
+  user?: {
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    fullName?: string;
+    roles?: string[];
+  };
   login: () => void;
   logout: () => void;
+  logoutUrl?: string;
+  buildLogoutUrl?: () => string | undefined;
   refreshToken: () => Promise<void>;
 }
 
@@ -25,6 +35,7 @@ export function KeycloakProvider({ children, config }: Props) {
   const [initialized, setInitialized] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [token, setToken] = useState<string | undefined>(undefined);
+  const [user, setUser] = useState<AuthContextValue['user']>(undefined);
 
   const isValidConfig = Boolean(config.url && config.realm && config.clientId);
 
@@ -52,6 +63,15 @@ export function KeycloakProvider({ children, config }: Props) {
         if (auth && kc.token) {
           setToken(kc.token);
           setAuthToken(kc.token);
+          const parsed: KeycloakTokenParsed = (kc.tokenParsed as KeycloakTokenParsed) || {};
+          setUser({
+            username: parsed.preferred_username || parsed.username,
+            firstName: parsed.given_name,
+            lastName: parsed.family_name,
+            email: parsed.email,
+            fullName: parsed.name || [parsed.given_name, parsed.family_name].filter(Boolean).join(' '),
+            roles: parsed.realm_access?.roles || parsed.resource_access?.[config.clientId!]?.roles || []
+          });
         }
       })
       .catch((err) => {
@@ -66,6 +86,15 @@ export function KeycloakProvider({ children, config }: Props) {
           if (refreshed && kc.token) {
             setToken(kc.token);
             setAuthToken(kc.token);
+            const parsed: KeycloakTokenParsed = (kc.tokenParsed as KeycloakTokenParsed) || {};
+            setUser({
+              username: parsed.preferred_username || parsed.username,
+              firstName: parsed.given_name,
+              lastName: parsed.family_name,
+              email: parsed.email,
+              fullName: parsed.name || [parsed.given_name, parsed.family_name].filter(Boolean).join(' '),
+              roles: parsed.realm_access?.roles || parsed.resource_access?.[config.clientId!]?.roles || []
+            });
           }
         })
         .catch((err) => console.error("Token refresh failed", err));
@@ -78,7 +107,7 @@ export function KeycloakProvider({ children, config }: Props) {
   }, [isValidConfig, config.url, config.realm, config.clientId]);
 
   const login = () => { if (keycloak) keycloak.login(); };
-  const logout = () => { if (keycloak) keycloak.logout(); };
+  const logout = () => { if (keycloak) keycloak.logout({ redirectUri: window.location.origin }); };
   const refreshToken = async () => {
     if (!keycloak) return;
     try {
@@ -92,18 +121,32 @@ export function KeycloakProvider({ children, config }: Props) {
     }
   };
 
+  const computeLogoutUrl = () => {
+    if (!isValidConfig) return undefined;
+    const base = config.url!.replace(/\/$/, '');
+    const redirect = typeof window !== 'undefined' ? window.location.origin : '';
+    return `${base}/realms/${config.realm}/protocol/openid-connect/logout?client_id=${encodeURIComponent(config.clientId!)}&post_logout_redirect_uri=${encodeURIComponent(redirect)}`;
+  };
+  const logoutUrl = computeLogoutUrl();
+
   return (
-    <AuthContext.Provider value={{ keycloak, initialized, authenticated, token, login, logout, refreshToken }}>
+    <AuthContext.Provider value={{ keycloak, initialized, authenticated, token, user, login, logout, logoutUrl, buildLogoutUrl: computeLogoutUrl, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Dummy Hook Nutzung für Entwicklung um Unused-Warnung zu vermeiden (wird tree-shaken in Prod)
-if (process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  (() => {})();
+interface KeycloakTokenParsed {
+  preferred_username?: string;
+  username?: string;
+  given_name?: string;
+  family_name?: string;
+  name?: string;
+  email?: string;
+  realm_access?: { roles?: string[] };
+  resource_access?: Record<string, { roles?: string[] }>;
 }
+
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth muss innerhalb KeycloakProvider verwendet werden");

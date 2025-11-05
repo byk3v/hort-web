@@ -19,7 +19,7 @@ export default function AppShell({children}: { children: React.ReactNode }) {
             />
 
             <Layout>
-                <HeaderBar title="Panel Hort" userName="Gianny"/>
+                <HeaderBar title="Panel Hort" />
 
                 <Content style={{margin: 16}}>
                     <div
